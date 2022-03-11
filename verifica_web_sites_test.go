@@ -3,6 +3,7 @@ package concurrency
 import (
 	"reflect"
 	"testing"
+	"time"
 )
 
 func mockVerificadorWebsite(url string) bool {
@@ -29,5 +30,20 @@ func TestVerificaWebsites(t *testing.T) {
 
 	if !reflect.DeepEqual(esperado, resultado) {
 		t.Fatalf("esperado %v, resultado %v", esperado, resultado)
+	}
+}
+
+func slowStubVerificadorWebsite(_ string) bool {
+	time.Sleep(20 * time.Millisecond)
+	return true
+}
+
+func BenchmarkVerificadoWebsites(b *testing.B) {
+	urls := make([]string, 100)
+	for i := 0; i < len(urls); i++ {
+		urls[i] = "uma url"
+	}
+	for i := 0; i < b.N; i++ {
+		VerificaWebsites(slowStubVerificadorWebsite, urls)
 	}
 }
